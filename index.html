@@ -155,10 +155,9 @@
                   if (!r.ok) {
                     throw new Error("HTTP error " + r.status);
                   }
-                  r.text()
-                })
-                .then(t => {
-                  this.loadStoryTXT(t);
+                  r.text().then(t => {
+                    this.loadStoryTXT(t);
+                  })
                 })
                 .catch(e => {
                   console.error("err1", e);
