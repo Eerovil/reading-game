@@ -233,6 +233,12 @@
                 this.words[i].correct = true;
               }
             }
+            // Try a full merge without spaces
+            const fullResult = result.replace(' ', '');
+            const fullStoryLine = this.words.map(word => word.word).join('');
+            if (this.compareWords(fullResult, fullStoryLine)) {
+              this.words.forEach(word => {word.correct = true});
+            }
           },
           compareWords(word1, word2) {
             if (!word1 || !word2) {
