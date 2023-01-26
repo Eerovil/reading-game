@@ -251,10 +251,12 @@
             const word1Trimmed = word1.trim().toLowerCase()
               .replaceAll('"', '').replaceAll("'", '').replaceAll(',', '').replaceAll('.', '')
               .replaceAll('!', '').replaceAll('?', '').replaceAll('(', '').replaceAll(')', '')
+              .replaceAll(':', '').replaceAll(';', '')
 
             const word2Trimmed = word2.trim().toLowerCase()
               .replaceAll('"', '').replaceAll("'", '').replaceAll(',', '').replaceAll('.', '')
               .replaceAll('!', '').replaceAll('?', '').replaceAll('(', '').replaceAll(')', '')
+              .replaceAll(':', '').replaceAll(';', '')
 
             if (word1Trimmed === word2Trimmed) {
               return true;
