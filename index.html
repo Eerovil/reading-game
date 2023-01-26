@@ -208,7 +208,7 @@
           },
           loadStory(baseStory) {
             this.storySelected = true;
-            this.story = baseStory.map(storyLine => storyLine.split(' ').map(word => ({
+            this.story = baseStory.map(storyLine => storyLine.split(' ').filter(Boolean).map(word => ({
                 word: word,
                 correct: false,
               })
