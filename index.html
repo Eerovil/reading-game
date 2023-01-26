@@ -208,6 +208,9 @@
           },
           nextStoryLine() {
             this.storyIndex++;
+            if (this.storyIndex >= this.story.length) {
+              this.storySelected = false;
+            }
           },
           startRecognition() {
             recognition.start();
