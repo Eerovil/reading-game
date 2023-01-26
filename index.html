@@ -229,6 +229,9 @@
             const detectedWords = result.split(' ');
             this.words.forEach(word => {word.correct = false});
             for (let i = 0; i < detectedWords.length; i++) {
+              if (i >= this.words.length) {
+                break;
+              }
               if (this.compareWords(detectedWords[i], this.words[i].word)) {
                 this.words[i].correct = true;
               }
