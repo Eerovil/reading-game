@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Instascan</title>
+    <meta name="viewport" content="width=device-width, initial-scale=0.5, maximum-scale=0.5, user-scalable=no">
+    <link rel="manifest" href="/static/manifest.json">
+    <script src="https://unpkg.com/shake-detector"></script>
+
+    <meta name="mobile-web-app-capable" content="yes">
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+    <style>
+      html {
+        height: 100%;
+      }
+      body {
+        text-align: center;
+        height: 100%;
+      }
+      #wrapper {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        height: 100%;
+      }
+      #vue-app {
+        height: 100%;
+        font-size: 3rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: center;
+      }
+      .all-correct {
+        width: 10rem;
+        fill: #34cb34;
+        margin-top: auto !important;
+        margin-bottom: 5rem !important;
+      }
+      .speech-recognition {
+        width: 4rem;
+        margin-top: auto !important;
+        margin-bottom: 5rem !important;
+      }
+      .story {
+        margin-top: 3rem;
+        font-size: 4rem;
+      }
+      .story .word-correct {
+        color: #34cb34;
+      }
+      .story .word {
+        margin-right: 0.5rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="wrapper">
+      <div id="vue-app">
+      </div>
+    </div>
+    
+    <script type="text/javascript">
+      const SpeechRecognition = window.SpeechRecognition || webkitSpeechRecognition;
+      const SpeechRecognitionEvent = window.SpeechRecognitionEvent || webkitSpeechRecognitionEvent;
+      
+      const recognition = new SpeechRecognition();
+      recognition.continuous = false;
+      recognition.lang = 'fi-FI';
+      recognition.interimResults = false;
+      recognition.maxAlternatives = 1;
+
+      const diagnostic = document.querySelector('.output');
+      const bg = document.querySelector('html');
+
+      let context = null;
+
+      const speak = (text) => {
+        console.log(text);
+        const utter = new SpeechSynthesisUtterance();
+        utter.lang = 'fi-FI';
+        utter.text = text;
+        speechSynthesis.cancel();
+        speechSynthesis.speak(utter);
+      }
+      if (window.speechSynthesis) {
+        speechSynthesis.getVoices();
+      }
+      let lastDetId = null
+      window.document.addEventListener('speak', (data) => speak(data.detail), false)
+
+    </script>
+    <template id="template">
+      <div class="story">
+        <span v-for="word in words" class="word" :class="{'word-correct': word.correct}">{{ word.word }}</span>
+      </div>
+      <div v-if="allCorrect" @click="nextStoryLine" class="all-correct">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>check-bold</title><path d="M9,20.42L2.79,14.21L5.62,11.38L9,14.77L18.88,4.88L21.71,7.71L9,20.42Z" /></svg>
+      </div>
+      <div class="speech-recognition" @click="startRecognition">
+        <div v-if="recognizingSpeech"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>microphone</title><path d="M12,2A3,3 0 0,1 15,5V11A3,3 0 0,1 12,14A3,3 0 0,1 9,11V5A3,3 0 0,1 12,2M19,11C19,14.53 16.39,17.44 13,17.93V21H11V17.93C7.61,17.44 5,14.53 5,11H7A5,5 0 0,0 12,16A5,5 0 0,0 17,11H19Z" /></svg></div>
+        <div v-else><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>microphone-outline</title><path d="M17.3,11C17.3,14 14.76,16.1 12,16.1C9.24,16.1 6.7,14 6.7,11H5C5,14.41 7.72,17.23 11,17.72V21H13V17.72C16.28,17.23 19,14.41 19,11M10.8,4.9C10.8,4.24 11.34,3.7 12,3.7C12.66,3.7 13.2,4.24 13.2,4.9L13.19,11.1C13.19,11.76 12.66,12.3 12,12.3C11.34,12.3 10.8,11.76 10.8,11.1M12,14A3,3 0 0,0 15,11V5A3,3 0 0,0 12,2A3,3 0 0,0 9,5V11A3,3 0 0,0 12,14Z" /></svg></div>
+      </div>
+    </template>
+    <script>
+      const { createApp } = Vue;
+    
+      createApp({
+        template: "#template",
+
+        data() {
+          return {
+            storyIndex: 0,
+            story: [],
+            recognizingSpeech: false,
+          }
+        },
+        computed: {
+          words() {
+            return this.story[this.storyIndex]
+          },
+          allCorrect () {
+            if (this.storyIndex >= this.story.length) {
+              return false;
+            }
+            return this.words.every(word => word.correct)
+          }
+        },
+        mounted() {
+          recognition.onresult = (event) => {
+            this.handleRecognitionResult(event);
+          }
+          recognition.onend = () => {
+            this.recognizingSpeech = false;
+          }
+          this.loadStory();
+        },
+        methods: {
+          loadStory() {
+            const baseStory = [
+              'Olipa kerran',
+              'kolme porsasta',
+            ]
+            this.story = baseStory.map(storyLine => storyLine.split(' ').map(word => ({
+                word: word,
+                correct: false,
+              })
+            ));
+            this.storyIndex = 0;
+          },
+          nextStoryLine() {
+            this.storyIndex++;
+          },
+          startRecognition() {
+            recognition.start();
+            this.recognizingSpeech = true;
+          },
+          handleRecognitionResult(event) {
+            this.recognizingSpeech = false;
+            const result = event.results[0][0].transcript;
+            console.log('Result', result);
+            const detectedWords = result.split(' ');
+            this.words.forEach(word => {word.correct = false});
+            for (let i = 0; i < detectedWords.length; i++) {
+              if (this.compareWords(detectedWords[i], this.words[i].word)) {
+                this.words[i].correct = true;
+              }
+            }
+          },
+          compareWords(word1, word2) {
+            if (!word1 || !word2) {
+              return false;
+            }
+            const word1Trimmed = word1.trim().toLowerCase();
+            const word2Trimmed = word2.trim().toLowerCase();
+            if (word1Trimmed === word2Trimmed) {
+              return true;
+            }
+            const synonyms = {
+              '1': 'yksi',
+              '2': 'kaksi',
+              '3': 'kolme',
+              '4': 'neljä',
+              '5': 'viisi',
+              '6': 'kuusi',
+              '7': 'seitsemän',
+              '8': 'kahdeksan',
+              '9': 'yhdeksän',
+              '10': 'kymmenen',
+            }
+            if ((word1Trimmed in synonyms) && synonyms[word1Trimmed] === word2Trimmed) {
+              return true;
+            }
+            if ((word2Trimmed in synonyms) && synonyms[word2Trimmed] === word1Trimmed) {
+              return true;
+            }
+            return false;
+          },
+        },
+      }).mount('#vue-app')
+
+    </script>
+  </body>
+</html>
