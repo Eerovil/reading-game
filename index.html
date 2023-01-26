@@ -190,7 +190,7 @@
             }
             for (const line of t.split('\n')) {
               if (line.startsWith('#')) {
-                initStory(line.replace('#', '').trim());
+                initStory(line.replaceAll('#', '').trim());
                 continue;
               }
               if (line == '') {
@@ -237,7 +237,7 @@
               }
             }
             // Try a full merge without spaces
-            const fullResult = result.replace(' ', '');
+            const fullResult = result.replaceAll(' ', '');
             const fullStoryLine = this.words.map(word => word.word).join('');
             if (this.compareWords(fullResult, fullStoryLine)) {
               this.words.forEach(word => {word.correct = true});
@@ -249,12 +249,12 @@
             }
             // Remove non alphanumeric characters
             const word1Trimmed = word1.trim().toLowerCase()
-              .replace('"', '').replace("'", '').replace(',', '').replace('.', '')
-              .replace('!', '').replace('?', '').replace('(', '').replace(')', '')
+              .replaceAll('"', '').replaceAll("'", '').replaceAll(',', '').replaceAll('.', '')
+              .replaceAll('!', '').replaceAll('?', '').replaceAll('(', '').replaceAll(')', '')
 
             const word2Trimmed = word2.trim().toLowerCase()
-              .replace('"', '').replace("'", '').replace(',', '').replace('.', '')
-              .replace('!', '').replace('?', '').replace('(', '').replace(')', '')
+              .replaceAll('"', '').replaceAll("'", '').replaceAll(',', '').replaceAll('.', '')
+              .replaceAll('!', '').replaceAll('?', '').replaceAll('(', '').replaceAll(')', '')
 
             if (word1Trimmed === word2Trimmed) {
               return true;
