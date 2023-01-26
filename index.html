@@ -199,7 +199,7 @@
               if (!currentStory) {
                 continue;
               }
-              stories[currentStory].lines.push(line);
+              stories[currentStory].lines.push(line.trim());
             }
             this.stories = stories;
           },
@@ -239,8 +239,14 @@
               return false;
             }
             // Remove non alphanumeric characters
-            const word1Trimmed = word1.trim().toLowerCase();
-            const word2Trimmed = word2.trim().toLowerCase();
+            const word1Trimmed = word1.trim().toLowerCase()
+              .replace('"', '').replace("'", '').replace(',', '').replace('.', '')
+              .replace('!', '').replace('?', '').replace('(', '').replace(')', '')
+
+            const word2Trimmed = word2.trim().toLowerCase()
+              .replace('"', '').replace("'", '').replace(',', '').replace('.', '')
+              .replace('!', '').replace('?', '').replace('(', '').replace(')', '')
+
             if (word1Trimmed === word2Trimmed) {
               return true;
             }
